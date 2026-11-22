@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derivify - آلة حاسبة المشتقات والتحليل الرياضي المتقدمة</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        innerbg: '#090d16',
+                        bordercolor: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Font: Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <!-- Math.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <!-- Chart.js for function graphing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Animated Glowing Background Effect */
+        .bg-glow {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(2, 132, 199, 0.18) 0%, rgba(0, 0, 0, 0) 70%);
+            top: -120px;
+            right: -120px;
+            z-index: 0;
+            animation: floatGlow 12s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-60px, 90px) scale(1.25); }
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 12px 35px -10px rgba(2, 132, 199, 0.25);
+        }
+
+        /* Button Shimmer Effect */
+        .btn-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+            transform: rotate(30deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .btn-shimmer:hover::after {
+            transform: rotate(30deg) translateX(100%);
+        }
+
+        /* Animations for Results */
+        .fade-in-up {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .katex-display {
+            margin: 0.5em 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 0;
+        }
+
+        .katex-display::-webkit-scrollbar {
+            height: 4px;
+        }
+        .katex-display::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        .symbol-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .symbol-btn:hover {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+        }
+
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #38bdf8;
+            background-color: rgba(2, 132, 199, 0.12);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #38bdf8, #0284c7);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Extra cool animations */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+            50% { box-shadow: 0 0 22px rgba(56, 189, 248, 0.55); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2.8s ease-in-out infinite;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .slide-in-right {
+            animation: slideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .scale-in {
+            animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0); }
+        }
+        .float-up {
+            animation: floatUp 3s ease-in-out infinite;
+        }
+
+        /* Chart container polish */
+        .chart-wrap {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+            border-radius: 1rem;
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.08), transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Loading spinner for graph */
+        .graph-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 280px;
+            color: #38bdf8;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(56, 189, 248, 0.2);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-600 selection:text-white relative">
+    
+    <!-- Ambient Background Glow -->
+    <div class="bg-glow"></div>
+
+    <!-- Header with Glowing Logo -->
+    <header class="border-b border-bordercolor/60 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 transition-all">
+        <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Custom SVG Logo for Derivify -->
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-sky-400 p-0.5 shadow-lg shadow-brand-600/30 flex items-center justify-center animate-pulse">
+                    <div class="w-full h-full bg-darkbg rounded-[10px] flex items-center justify-center relative overflow-hidden">
+                        <svg class="w-7 h-7 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19C8 19 8 5 12 5C16 5 16 19 20 19" stroke="url(#logo-grad)" stroke-width="2.5" />
+                            <path d="M12 3v4" />
+                            <circle cx="12" cy="3" r="1" fill="currentColor" />
+                            <defs>
+                                <linearGradient id="logo-grad" x1="4" y1="5" x2="20" y2="19" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="1" stop-color="#0284c7" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-500 bg-clip-text text-transparent">
+                        Derivify
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">الآلة الحاسبة الذكية للتفاضل والتحليل الرياضي</p>
+                </div>
+            </div>
+            
+            <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 bg-slate-800/80 border border-bordercolor px-3.5 py-1.5 rounded-full backdrop-blur shadow-inner">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                وضع العمليات المتقدمة
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow relative z-10">
+        
+        <!-- Input Section Card -->
+        <section class="glass-card rounded-2xl p-6 shadow-2xl mb-8">
+            <div class="space-y-4">
+                
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Function Input -->
+                    <div class="flex-grow">
+                        <label for="expression" class="block text-sm font-semibold text-slate-300 mb-2">
+                            أدخل الدالة <span class="font-mono text-brand-500 font-bold">f(x)</span>:
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="expression" dir="ltr" 
+                                value="x^3 - 3*x + sin(x)"
+                                placeholder="مثال: x^3 + 2*x^2 - 5*x + 3"
+                                class="w-full bg-innerbg/90 text-white font-mono text-lg px-4 py-3.5 rounded-xl border border-bordercolor focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 outline-none transition-all placeholder:text-slate-600 shadow-inner">
+                        </div>
+                    </div>
+
+                    <!-- Variable Input -->
+                    <div class="w-full md:w-32">
+                        <label for="variable" class="block text-sm font-semibold text-slate-300 mb-2">
+                            المتغير:
+                        </label>
+                        <input type="text" id="variable" dir="ltr" 
+                            value="x"
+                            class="w-full bg-innerbg/90 text-white font-mono text-lg text-center py-3.5 rounded-xl border border-bordercolor focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 outline-none transition-all shadow-inner">
+                    </div>
+                </div>
+
+                <!-- Auxiliary Points Inputs (Slope Point & Limit Point) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-bordercolor/40">
+                    <div>
+                        <label for="point-a" class="block text-xs font-semibold text-slate-400 mb-1">
+                            نقطة التماس للميل والمماس (x = c):
+                        </label>
+                        <input type="text" id="point-a" dir="ltr" value="1" 
+                            class="w-full bg-innerbg/70 text-amber-400 font-mono text-sm px-3 py-2.5 rounded-lg border border-bordercolor focus:border-amber-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label for="limit-c" class="block text-xs font-semibold text-slate-400 mb-1">
+                            نقطة حساب النهاية (x → c):
+                        </label>
+                        <input type="text" id="limit-c" dir="ltr" value="0" 
+                            class="w-full bg-innerbg/70 text-cyan-400 font-mono text-sm px-3 py-2.5 rounded-lg border border-bordercolor focus:border-cyan-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <!-- On-Screen Advanced Math Keypad (Trig, Hyperbolic, Powers, Roots) -->
+                <div class="pt-2">
+                    <span class="text-xs text-slate-400 block mb-2 font-medium">لوحة المفاتيح الرياضية السريعة (اضغط للإدراج):</span>
+                    <div class="flex flex-wrap gap-1.5 dir-ltr" dir="ltr">
+                        <button onclick="insertSymbol('(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-amber-300">(</button>
+                        <button onclick="insertSymbol(')')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-amber-300">)</button>
+                        <button onclick="insertSymbol('^2')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">x²</button>
+                        <button onclick="insertSymbol('^3')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">x³</button>
+                        <button onclick="insertSymbol('^')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">xⁿ</button>
+                        <button onclick="insertSymbol('sqrt(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-slate-300">√x</button>
+                        <button onclick="insertSymbol('sin(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-cyan-300 font-semibold">sin</button>
+                        <button onclick="insertSymbol('cos(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-cyan-300 font-semibold">cos</button>
+                        <button onclick="insertSymbol('tan(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-cyan-300 font-semibold">tan</button>
+                        <button onclick="insertSymbol('csc(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-cyan-400 font-semibold">csc</button>
+                        <button onclick="insertSymbol('sec(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-cyan-400 font-semibold">sec</button>
+                        <button onclick="insertSymbol('cot(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-cyan-400 font-semibold">cot</button>
+                        <button onclick="insertSymbol('sinh(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-purple-300 font-semibold">sinh</button>
+                        <button onclick="insertSymbol('cosh(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-purple-300 font-semibold">cosh</button>
+                        <button onclick="insertSymbol('tanh(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-purple-300 font-semibold">tanh</button>
+                        <button onclick="insertSymbol('log(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-slate-300">log</button>
+                        <button onclick="insertSymbol('ln(')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-slate-300">ln</button>
+                        <button onclick="insertSymbol('e^')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono text-slate-300">eˣ</button>
+                        <button onclick="insertSymbol('/')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">/</button>
+                        <button onclick="insertSymbol('*')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">×</button>
+                        <button onclick="insertSymbol('+')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">+</button>
+                        <button onclick="insertSymbol('-')" class="symbol-btn text-xs px-2.5 py-1.5 rounded-lg font-mono font-bold text-slate-300">−</button>
+                    </div>
+                </div>
+
+                <!-- Action Navigation Buttons Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2.5 pt-4">
+                    <button onclick="calculateAll(); setActiveTab('derivatives')" id="btn-deriv" class="btn-shimmer py-3 px-3 bg-brand-600 hover:bg-brand-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-brand-600/25 transition-all text-xs flex flex-col items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        المشتقات
+                    </button>
+                    <button onclick="calculateAll(); setActiveTab('slope')" id="btn-slope" class="btn-shimmer py-3 px-3 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all text-xs flex flex-col items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        الميل والمماس
+                    </button>
+                    <button onclick="calculateAll(); setActiveTab('limits')" id="btn-limits" class="btn-shimmer py-3 px-3 bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-cyan-600/20 transition-all text-xs flex flex-col items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        النهايات
+                    </button>
+                    <button onclick="calculateAll(); setActiveTab('graph')" id="btn-graph" class="btn-shimmer py-3 px-3 bg-fuchsia-600 hover:bg-fuchsia-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-fuchsia-600/25 transition-all text-xs flex flex-col items-center justify-center gap-1 pulse-glow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                        الرسم البياني
+                    </button>
+                    <button onclick="calculateAll(); setActiveTab('domain')" id="btn-domain" class="py-3 px-3 bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 font-bold rounded-xl border border-bordercolor transition-all text-xs flex flex-col items-center justify-center gap-1">
+                        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        المجال (Domain)
+                    </button>
+                    <button onclick="calculateAll(); setActiveTab('range')" id="btn-range" class="py-3 px-3 bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-300 font-bold rounded-xl border border-bordercolor transition-all text-xs flex flex-col items-center justify-center gap-1">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                        المدى (Range)
+                    </button>
+                    <button onclick="calculateAll(); setActiveTab('inverse')" id="btn-inverse" class="py-3 px-3 bg-slate-800 hover:bg-slate-700 active:scale-95 text-purple-300 font-bold rounded-xl border border-bordercolor transition-all text-xs flex flex-col items-center justify-center gap-1">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        الدالة العكسية
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Notification Alert Box -->
+        <div id="error-box" class="hidden mb-6 p-4 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 flex items-center gap-3 fade-in-up">
+            <svg class="w-6 h-6 shrink-0 text-red-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span id="error-text" class="text-sm font-medium"></span>
+        </div>
+
+        <!-- Results Section Container -->
+        <section id="results-container" class="hidden space-y-6 fade-in-up">
+            
+            <!-- Original Expression Card -->
+            <div class="glass-card rounded-2xl p-5 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-brand-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-brand-400 animate-ping"></span>
+                        الدالة الأصلية المُدخلة
+                    </span>
+                    <button onclick="copyFormula('original-formula')" class="text-slate-400 hover:text-white text-xs flex items-center gap-1 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012-2v-8a2 2 0 01-2-2h-8a2 2 0 01-2 2v8a2 2 0 012 2z"></path></svg>
+                        نسخ
+                    </button>
+                </div>
+                <div id="original-formula" class="bg-innerbg/80 rounded-xl p-4 text-center border border-bordercolor/50"></div>
+            </div>
+
+            <!-- Tabs Navigation Bar -->
+            <div class="flex border-b border-bordercolor bg-slate-900/60 backdrop-blur rounded-t-xl overflow-x-auto">
+                <button onclick="setActiveTab('derivatives')" id="tab-btn-derivatives" class="tab-btn active px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    المشتقات (1, 2, 3)
+                </button>
+                <button onclick="setActiveTab('slope')" id="tab-btn-slope" class="tab-btn px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    الميل والمماس
+                </button>
+                <button onclick="setActiveTab('limits')" id="tab-btn-limits" class="tab-btn px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    النهايات (Limits)
+                </button>
+                <button onclick="setActiveTab('graph')" id="tab-btn-graph" class="tab-btn px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    الرسم البياني
+                </button>
+                <button onclick="setActiveTab('domain')" id="tab-btn-domain" class="tab-btn px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    المجال (Domain)
+                </button>
+                <button onclick="setActiveTab('range')" id="tab-btn-range" class="tab-btn px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    المدى (Range)
+                </button>
+                <button onclick="setActiveTab('inverse')" id="tab-btn-inverse" class="tab-btn px-5 py-3 font-semibold text-slate-300 hover:text-white transition-all text-xs sm:text-sm whitespace-nowrap">
+                    الدالة العكسية f⁻¹(x)
+                </button>
+            </div>
+
+            <!-- Tab 1: Derivatives Panel -->
+            <div id="tab-derivatives" class="tab-content space-y-4">
+                <div class="glass-card rounded-2xl p-5 shadow-md relative group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-sky-400">المشتقة الأولى f'(x)</span>
+                        <button onclick="copyFormula('d1-formula')" class="text-slate-400 hover:text-white text-xs flex items-center gap-1">نسخ</button>
+                    </div>
+                    <div id="d1-formula" class="bg-innerbg/80 rounded-xl p-4 text-center border border-bordercolor/50"></div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 shadow-md relative group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-emerald-400">المشتقة الثانية f''(x)</span>
+                        <button onclick="copyFormula('d2-formula')" class="text-slate-400 hover:text-white text-xs flex items-center gap-1">نسخ</button>
+                    </div>
+                    <div id="d2-formula" class="bg-innerbg/80 rounded-xl p-4 text-center border border-bordercolor/50"></div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 shadow-md relative group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-purple-400">المشتقة الثالثة f'''(x)</span>
+                        <button onclick="copyFormula('d3-formula')" class="text-slate-400 hover:text-white text-xs flex items-center gap-1">نسخ</button>
+                    </div>
+                    <div id="d3-formula" class="bg-innerbg/80 rounded-xl p-4 text-center border border-bordercolor/50"></div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Slope & Tangent Panel -->
+            <div id="tab-slope" class="tab-content hidden glass-card rounded-b-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-amber-400 border-b border-bordercolor/60 pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    ميل المماس ومعادلة الخط المماس عند النقطة المحددة
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-innerbg/80 p-4 rounded-xl border border-bordercolor/50">
+                        <span class="text-xs text-amber-300 font-semibold block mb-2">قيمة ميل المماس m:</span>
+                        <div id="slope-value-output" class="text-center"></div>
+                    </div>
+                    <div class="bg-innerbg/80 p-4 rounded-xl border border-bordercolor/50">
+                        <span class="text-xs text-amber-300 font-semibold block mb-2">معادلة خط المماس (Tangent Line):</span>
+                        <div id="tangent-line-output" class="text-center"></div>
+                    </div>
+                </div>
+                <div id="slope-explanation" class="text-xs text-slate-300 leading-relaxed pt-2"></div>
+            </div>
+
+            <!-- Tab 3: Limits Panel -->
+            <div id="tab-limits" class="tab-content hidden glass-card rounded-b-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-cyan-400 border-b border-bordercolor/60 pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    حساب نهاية الدالة (Limits)
+                </h3>
+                <div id="limits-output" class="bg-innerbg/80 p-4 rounded-xl text-center border border-bordercolor/50"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div class="bg-innerbg/60 p-3 rounded-xl border border-bordercolor/40 text-center">
+                        <span class="text-xs text-slate-400 block mb-1">النهاية من اليسار (Left-hand):</span>
+                        <div id="limit-left-output"></div>
+                    </div>
+                    <div class="bg-innerbg/60 p-3 rounded-xl border border-bordercolor/40 text-center">
+                        <span class="text-xs text-slate-400 block mb-1">النهاية من اليمين (Right-hand):</span>
+                        <div id="limit-right-output"></div>
+                    </div>
+                </div>
+                <div id="limits-explanation" class="text-xs text-slate-300 leading-relaxed pt-2"></div>
+            </div>
+
+            <!-- Tab 4: Graph Panel -->
+            <div id="tab-graph" class="tab-content hidden glass-card rounded-b-2xl p-6 space-y-4 scale-in">
+                <h3 class="text-lg font-bold text-fuchsia-400 border-b border-bordercolor/60 pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                    الرسم البياني للدالة f(x)
+                </h3>
+
+                <div class="flex flex-wrap gap-3 items-end mb-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">من (x min)</label>
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="toggleGraphSign('graph-xmin')" title="تبديل الإشارة (−)"
+                                class="symbol-btn w-9 h-9 flex items-center justify-center rounded-lg font-mono font-bold text-amber-300 text-lg hover:bg-amber-600/30">
+                                −
+                            </button>
+                            <input type="number" id="graph-xmin" value="-8" step="0.5"
+                                class="w-24 bg-innerbg/80 text-fuchsia-300 font-mono text-sm px-3 py-2 rounded-lg border border-bordercolor focus:border-fuchsia-500 outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">إلى (x max)</label>
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="toggleGraphSign('graph-xmax')" title="تبديل الإشارة (−)"
+                                class="symbol-btn w-9 h-9 flex items-center justify-center rounded-lg font-mono font-bold text-amber-300 text-lg hover:bg-amber-600/30">
+                                −
+                            </button>
+                            <input type="number" id="graph-xmax" value="8" step="0.5"
+                                class="w-24 bg-innerbg/80 text-fuchsia-300 font-mono text-sm px-3 py-2 rounded-lg border border-bordercolor focus:border-fuchsia-500 outline-none">
+                        </div>
+                    </div>
+                    <button onclick="plotFunctionGraph()" class="btn-shimmer px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-fuchsia-600/30 transition-all active:scale-95">
+                        إعادة الرسم
+                    </button>
+                </div>
+
+                <div class="chart-wrap" style="height: 340px;">
+                    <div id="graph-loader" class="graph-loader hidden">
+                        <div class="spinner"></div>
+                    </div>
+                    <canvas id="function-chart" class="w-full h-full"></canvas>
+                </div>
+
+                <div id="graph-info" class="text-xs text-slate-400 leading-relaxed pt-1"></div>
+            </div>
+
+            <!-- Tab 5: Domain Panel -->
+            <div id="tab-domain" class="tab-content hidden glass-card rounded-b-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-sky-400 border-b border-bordercolor/60 pb-2">تحليل مجال الدالة (Domain)</h3>
+                <div id="domain-output" class="bg-innerbg/80 p-4 rounded-xl text-center border border-bordercolor/50"></div>
+                <div id="domain-explanation" class="text-sm text-slate-300 leading-relaxed space-y-2 pt-2"></div>
+            </div>
+
+            <!-- Tab 5: Range Panel -->
+            <div id="tab-range" class="tab-content hidden glass-card rounded-b-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-emerald-400 border-b border-bordercolor/60 pb-2">تحليل مدى الدالة (Range)</h3>
+                <div id="range-output" class="bg-innerbg/80 p-4 rounded-xl text-center border border-bordercolor/50"></div>
+                <div id="range-explanation" class="text-sm text-slate-300 leading-relaxed space-y-2 pt-2"></div>
+            </div>
+
+            <!-- Tab 6: Inverse Panel -->
+            <div id="tab-inverse" class="tab-content hidden glass-card rounded-b-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-purple-400 border-b border-bordercolor/60 pb-2">الدالة العكسية f⁻¹(x)</h3>
+                <div id="inverse-output" class="bg-innerbg/80 p-4 rounded-xl text-center border border-bordercolor/50"></div>
+                <div id="inverse-explanation" class="text-sm text-slate-300 leading-relaxed space-y-2 pt-2"></div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Toast Notification Element -->
+    <div id="toast" class="fixed bottom-5 left-5 bg-brand-600 text-white px-4 py-2.5 rounded-xl shadow-2xl transition-all opacity-0 pointer-events-none translate-y-2 text-sm font-semibold flex items-center gap-2 z-50">
+        <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span>تم نسخ الصيغة بنجاح!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-bordercolor/40 bg-slate-900/60 backdrop-blur py-6 text-center text-xs text-slate-500 relative z-10">
+        <p>Derivify © 2026 - آلة حاسبة تفاعلية متطورة للتفاضل والتحليل الرياضي</p>
+    </footer>
+
+    <!-- JavaScript Calculation and UI Logic -->
+    <script>
+        let rawFormulas = {};
+        let functionChart = null;
+        let lastExpr = '';
+        let lastVar = 'x';
+
+        function insertSymbol(symbol) {
+            const input = document.getElementById('expression');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            input.value = text.substring(0, start) + symbol + text.substring(end);
+            input.focus();
+            input.selectionStart = input.selectionEnd = start + symbol.length;
+        }
+
+        function copyFormula(elementId) {
+            const textToCopy = rawFormulas[elementId] || '';
+            if (!textToCopy) return;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+            }, 2000);
+        }
+
+        function setActiveTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            const selectedContent = document.getElementById(`tab-${tabName}`);
+            const selectedBtn = document.getElementById(`tab-btn-${tabName}`);
+
+            if (selectedContent) {
+                selectedContent.classList.remove('hidden');
+                // re-trigger animation
+                selectedContent.classList.remove('scale-in', 'fade-in-up');
+                void selectedContent.offsetWidth;
+                selectedContent.classList.add(tabName === 'graph' ? 'scale-in' : 'fade-in-up');
+            }
+            if (selectedBtn) selectedBtn.classList.add('active');
+
+            // Auto-plot when opening graph tab
+            if (tabName === 'graph' && lastExpr) {
+                setTimeout(() => plotFunctionGraph(), 80);
+            }
+        }
+
+        function renderTex(elementId, latexStr) {
+            rawFormulas[elementId] = latexStr;
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            try {
+                katex.render(latexStr, container, {
+                    throwOnError: false,
+                    displayMode: true
+                });
+            } catch (e) {
+                container.textContent = latexStr;
+            }
+        }
+
+        function calculateAll() {
+            const exprInput = document.getElementById('expression').value.trim();
+            const varInput = document.getElementById('variable').value.trim() || 'x';
+            const pointAInput = parseFloat(document.getElementById('point-a').value.trim()) || 0;
+            const limitCInput = document.getElementById('limit-c').value.trim() || '0';
+            
+            const errorBox = document.getElementById('error-box');
+            const errorText = document.getElementById('error-text');
+            const resultsContainer = document.getElementById('results-container');
+
+            errorBox.classList.add('hidden');
+
+            if (!exprInput) {
+                errorText.textContent = 'يرجى إدخال دالة رياضية صحيحة.';
+                errorBox.classList.remove('hidden');
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const parsedNode = math.parse(exprInput);
+                const originalTex = `f(${varInput}) = ` + parsedNode.toTex();
+                renderTex('original-formula', originalTex);
+
+                lastExpr = exprInput;
+                lastVar = varInput;
+
+                // 1. Derivatives (1st, 2nd, 3rd)
+                const d1 = math.derivative(exprInput, varInput);
+                const d2 = math.derivative(d1, varInput);
+                const d3 = math.derivative(d2, varInput);
+
+                renderTex('d1-formula', `f'(${varInput}) = ` + d1.toTex());
+                renderTex('d2-formula', `f''(${varInput}) = ` + d2.toTex());
+                renderTex('d3-formula', `f'''(${varInput}) = ` + d3.toTex());
+
+                // 2. Slope and Tangent Line
+                calculateSlopeAndTangent(exprInput, d1, varInput, pointAInput);
+
+                // 3. Limits Calculation
+                calculateLimits(exprInput, varInput, limitCInput);
+
+                // 4. Domain, Range, Inverse
+                analyzeDomain(exprInput, varInput);
+                analyzeRange(exprInput, varInput, d1);
+                analyzeInverse(exprInput, varInput);
+
+                // 5. Prepare graph (will plot when tab opens or if already open)
+                resultsContainer.classList.remove('hidden');
+
+                // If graph tab is currently visible, refresh it
+                const graphTab = document.getElementById('tab-graph');
+                if (graphTab && !graphTab.classList.contains('hidden')) {
+                    setTimeout(() => plotFunctionGraph(), 100);
+                }
+
+            } catch (err) {
+                resultsContainer.classList.add('hidden');
+                errorText.textContent = 'حدث خطأ في قراءة الدالة. تأكد من صحة العمليات والرموز المثلثية والأسية (مثال: x^2 + sin(x) أو sinh(x)).';
+                errorBox.classList.remove('hidden');
+                console.error(err);
+            }
+        }
+
+        // ===== Function Graph Plotter =====
+        function toggleGraphSign(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const val = parseFloat(input.value);
+            if (isNaN(val) || val === 0) {
+                input.value = val === 0 ? '0' : '-';
+                input.focus();
+                return;
+            }
+            input.value = (-val).toString();
+        }
+
+        function plotFunctionGraph() {
+            const expr = lastExpr || document.getElementById('expression').value.trim();
+            const varName = lastVar || document.getElementById('variable').value.trim() || 'x';
+            if (!expr) return;
+
+            const xmin = parseFloat(document.getElementById('graph-xmin').value);
+            const xmax = parseFloat(document.getElementById('graph-xmax').value);
+            if (isNaN(xmin) || isNaN(xmax) || xmin >= xmax) {
+                document.getElementById('graph-info').textContent = '⚠ تأكد أن قيمة "من" أصغر من "إلى" وأن القيمتين أرقام صحيحة.';
+                return;
+            }
+
+            const loader = document.getElementById('graph-loader');
+            const canvas = document.getElementById('function-chart');
+            loader.classList.remove('hidden');
+            canvas.style.opacity = '0.3';
+
+            // Small delay so spinner is visible + feels smooth
+            setTimeout(() => {
+                try {
+                    const compiled = math.compile(expr);
+                    // Higher resolution for better accuracy
+                    const numPoints = 900;
+                    const step = (xmax - xmin) / numPoints;
+                    const labels = [];
+                    const data = [];
+                    let validCount = 0;
+                    let yMin = Infinity, yMax = -Infinity;
+                    const rawYs = []; // collect finite values for smart clipping
+
+                    // First pass: evaluate all points
+                    for (let i = 0; i <= numPoints; i++) {
+                        const x = xmin + i * step;
+                        labels.push(+x.toFixed(5));
+                        try {
+                            let y = compiled.evaluate({ [varName]: x });
+                            // Handle complex results (take real part)
+                            if (typeof y === 'object' && y !== null && y.re !== undefined) {
+                                y = y.re;
+                            }
+                            if (typeof y !== 'number' || !isFinite(y) || isNaN(y)) {
+                                rawYs.push(null);
+                            } else {
+                                rawYs.push(y);
+                                if (Math.abs(y) < 1e8) { // collect reasonable values for stats
+                                    validCount++;
+                                    if (y < yMin) yMin = y;
+                                    if (y > yMax) yMax = y;
+                                }
+                            }
+                        } catch {
+                            rawYs.push(null);
+                        }
+                    }
+
+                    // Smart vertical clip: use robust range (avoid extreme spikes dominating the view)
+                    let clipLimit = 1e6;
+                    if (isFinite(yMin) && isFinite(yMax)) {
+                        const span = yMax - yMin;
+                        // If the function has huge spikes, clip more aggressively around the bulk of the data
+                        if (span > 0 && span < 1e7) {
+                            clipLimit = Math.max(Math.abs(yMin), Math.abs(yMax)) * 1.8 + 10;
+                            clipLimit = Math.min(clipLimit, 5e5);
+                        }
+                    }
+
+                    // Second pass: apply clip + break line on large jumps (asymptotes / discontinuities)
+                    let prevY = null;
+                    const jumpThreshold = (isFinite(yMax) && isFinite(yMin))
+                        ? Math.max((yMax - yMin) * 0.35, Math.abs(yMax) * 0.25, 15)
+                        : 80;
+
+                    for (let i = 0; i < rawYs.length; i++) {
+                        let y = rawYs[i];
+                        if (y === null || Math.abs(y) > clipLimit) {
+                            data.push(null);
+                            prevY = null;
+                            continue;
+                        }
+                        // Break the line if there's a sudden huge jump (vertical asymptote)
+                        if (prevY !== null && Math.abs(y - prevY) > jumpThreshold) {
+                            data.push(null); // insert gap
+                            // still plot the current point after the gap
+                        }
+                        data.push(+y.toFixed(7));
+                        prevY = y;
+                    }
+
+                    if (functionChart) {
+                        functionChart.destroy();
+                        functionChart = null;
+                    }
+
+                    const ctx = canvas.getContext('2d');
+                    functionChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `f(${varName})`,
+                                data: data,
+                                borderColor: '#e879f9',
+                                backgroundColor: 'rgba(232, 121, 249, 0.10)',
+                                borderWidth: 2.2,
+                                pointRadius: 0,
+                                pointHoverRadius: 4.5,
+                                pointHoverBackgroundColor: '#f0abfc',
+                                tension: 0.08,          // lower tension = more faithful to actual values
+                                fill: true,
+                                spanGaps: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 750,
+                                easing: 'easeOutQuart'
+                            },
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    labels: {
+                                        color: '#e2e8f0',
+                                        font: { family: 'Tajawal', size: 13 }
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                    titleColor: '#f0abfc',
+                                    bodyColor: '#f8fafc',
+                                    borderColor: '#a855f7',
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    displayColors: false,
+                                    callbacks: {
+                                        title: (items) => `${varName} = ${items[0].label}`,
+                                        label: (item) => item.raw !== null ? `f = ${item.raw}` : 'غير معرف'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: varName,
+                                        color: '#94a3b8',
+                                        font: { family: 'Tajawal', size: 12 }
+                                    },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        maxTicksLimit: 14,
+                                        font: { size: 11 }
+                                    },
+                                    grid: {
+                                        color: 'rgba(51, 65, 85, 0.45)',
+                                        drawBorder: false
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: `f(${varName})`,
+                                        color: '#94a3b8',
+                                        font: { family: 'Tajawal', size: 12 }
+                                    },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: 11 }
+                                    },
+                                    grid: {
+                                        color: 'rgba(51, 65, 85, 0.45)',
+                                        drawBorder: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    let infoText = `تم رسم ${validCount} نقطة بدقة عالية في الفترة [${xmin}, ${xmax}].`;
+                    if (isFinite(yMin) && isFinite(yMax)) {
+                        infoText += `  •  المدى التقريبي: [${yMin.toFixed(3)}, ${yMax.toFixed(3)}]`;
+                    }
+                    document.getElementById('graph-info').textContent = infoText;
+
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById('graph-info').textContent = 'تعذر رسم الدالة. تأكد من صحة التعبير.';
+                } finally {
+                    loader.classList.add('hidden');
+                    canvas.style.opacity = '1';
+                    canvas.style.transition = 'opacity 0.4s ease';
+                }
+            }, 180);
+        }
+
+        // Numerical Slope and Tangent Line Equation
+        function calculateSlopeAndTangent(exprStr, d1Node, varName, aVal) {
+            try {
+                const compiledExpr = math.compile(exprStr);
+                const compiledD1 = d1Node.compile();
+
+                const fa = compiledExpr.evaluate({ [varName]: aVal });
+                const slopeM = compiledD1.evaluate({ [varName]: aVal });
+
+                const formattedSlope = Number.isInteger(slopeM) ? slopeM : slopeM.toFixed(4);
+                const formattedFa = Number.isInteger(fa) ? fa : fa.toFixed(4);
+
+                renderTex('slope-value-output', `m = f'(${aVal}) = ${formattedSlope}`);
+
+                const intercept = fa - (slopeM * aVal);
+                const formattedIntercept = intercept >= 0 ? `+ ${intercept.toFixed(2)}` : `- ${Math.abs(intercept).toFixed(2)}`;
+                
+                const tangentTex = `y = ${formattedSlope}${varName} ${formattedIntercept}`;
+                renderTex('tangent-line-output', tangentTex);
+
+                document.getElementById('slope-explanation').innerHTML = 
+                    `<p class='text-amber-300'>• قيمة الميل عند النقطة $x = ${aVal}$ هي $m = ${formattedSlope}$.</p>` +
+                    `<p class='text-slate-300 mt-1'>• معادلة خط المماس المار بالنقطة $(${aVal}, ${formattedFa})$ هي: $y - f(a) = f'(a)(x - a)$.</p>`;
+            } catch(e) {
+                renderTex('slope-value-output', `m = \\text{غير معرف}`);
+                renderTex('tangent-line-output', `y = \\text{غير متاح}`);
+            }
+        }
+
+        // Numerical Limits Evaluation (Approximation)
+        function calculateLimits(exprStr, varName, cValStr) {
+            try {
+                const compiled = math.compile(exprStr);
+                let cVal = parseFloat(cValStr);
+
+                if (cValStr.includes('inf') || cValStr === '∞') {
+                    const valLarge = compiled.evaluate({ [varName]: 100000 });
+                    const formatted = Math.abs(valLarge) > 1e6 ? (valLarge > 0 ? '\\infty' : '-\\infty') : valLarge.toFixed(4);
+                    renderTex('limits-output', `\\lim_{{${varName} \\to \\infty}} f(${varName}) = ${formatted}`);
+                    renderTex('limit-left-output', `\\approx ${formatted}`);
+                    renderTex('limit-right-output', `\\approx ${formatted}`);
+                    document.getElementById('limits-explanation').innerHTML = `<p class='text-cyan-300'>• تم قياس نهاية الدالة عندما يؤول المتغير إلى المالانهاية ($\\infty$).</p>`;
+                    return;
+                }
+
+                if (isNaN(cVal)) cVal = 0;
+
+                const h = 0.00001;
+                const leftVal = compiled.evaluate({ [varName]: cVal - h });
+                const rightVal = compiled.evaluate({ [varName]: cVal + h });
+
+                const formattedLeft = Number.isInteger(leftVal) ? leftVal : leftVal.toFixed(4);
+                const formattedRight = Number.isInteger(rightVal) ? rightVal : rightVal.toFixed(4);
+
+                renderTex('limit-left-output', `\\lim_{{${varName} \\to ${cVal}^-}} f(${varName}) = ${formattedLeft}`);
+                renderTex('limit-right-output', `\\lim_{{${varName} \\to ${cVal}^+}} f(${varName}) = ${formattedRight}`);
+
+                if (Math.abs(leftVal - rightVal) < 0.01) {
+                    const avgVal = ((leftVal + rightVal) / 2).toFixed(4);
+                    renderTex('limits-output', `\\lim_{{${varName} \\to ${cVal}}} f(${varName}) = ${avgVal}`);
+                    document.getElementById('limits-explanation').innerHTML = `<p class='text-emerald-400'>• النهاية موجودة وتتطابق القيمتان من اليمين واليسار عند $${varName} \\to ${cVal}$.</p>`;
+                } else {
+                    renderTex('limits-output', `\\lim_{{${varName} \\to ${cVal}}} f(${varName}) = \\text{غير موجودة (DNE)}`);
+                    document.getElementById('limits-explanation').innerHTML = `<p class='text-red-400'>• النهاية غير موجودة لأن النهاية اليمنى لا تساوي النهاية اليسرى عند هذه النقطة.</p>`;
+                }
+
+            } catch (e) {
+                renderTex('limits-output', `\\text{غير متاح}`);
+            }
+        }
+
+        // Domain Analysis
+        function analyzeDomain(expr, variable) {
+            let domainTex = "D_f = \\mathbb{R}";
+            let explanation = "<p class='font-semibold text-emerald-400'>• الدالة معرفة على جميع الأعداد الحقيقية ℝ.</p>";
+
+            if (expr.includes('/')) {
+                const parts = expr.split('/');
+                const denominator = parts[parts.length - 1].replace(/[()]/g, '').trim();
+                domainTex = `D_f = \\mathbb{R} \\setminus \\{ ${variable} \\mid ${denominator} = 0 \\}`;
+                explanation = `<p class='text-amber-400'>• الدالة كسرية: المجال هو جميع الأعداد الحقيقية ما عدا قيم ${variable} التي تجعل المقام يساوي الصفر (${denominator} = 0).</p>`;
+            } else if (expr.includes('sqrt')) {
+                const match = expr.match(/sqrt\(([^)]+)\)/);
+                const insideSqrt = match ? match[1] : 'g(x)';
+                domainTex = `D_f = \\{ ${variable} \\in \\mathbb{R} \\mid ${insideSqrt} \\ge 0 \\}`;
+                explanation = `<p class='text-amber-400'>• تحتوي الدالة على جذر تربيعي: يجب أن تكون القيمة داخل الجذر أكبر من أو تساوي الصفر.</p>`;
+            } else if (expr.includes('log') || expr.includes('ln')) {
+                domainTex = `D_f = \\{ ${variable} \\in \\mathbb{R} \\mid g(${variable}) > 0 \\}`;
+                explanation = `<p class='text-amber-400'>• تحتوي الدالة على لوغاريتم: المجال مقتصر على الأقيم الموجبة تماماً.</p>`;
+            }
+
+            renderTex('domain-output', domainTex);
+            document.getElementById('domain-explanation').innerHTML = explanation;
+        }
+
+        // Range Analysis
+        function analyzeRange(expr, variable, d1Node) {
+            let rangeTex = "R_f = (-\\infty, +\\infty)";
+            let explanation = "<p>• الدالة مستمرة وتغطي الأعداد الحقيقية وفق السلوك التحليلي.</p>";
+
+            if (expr.includes('^2') && !expr.includes('^3') && !expr.includes('sin') && !expr.includes('cos')) {
+                rangeTex = `R_f = [y_{min}, +\\infty)`;
+                explanation = `<p class='text-emerald-400'>• الدالة تربيعية ذات فرعين للأعلى، والمدى يبدأ من القيمة الدنيا إلى +∞.</p>`;
+            } else if (expr.includes('sin') || expr.includes('cos') || expr.includes('tanh')) {
+                rangeTex = "R_f = [-1, 1]";
+                explanation = "<p class='text-emerald-400'>• دالة مثلثية أو زائدية محدودة النطاق بين -1 و 1.</p>";
+            } else if (expr.includes('sinh')) {
+                rangeTex = "R_f = (-\\infty, +\\infty)";
+                explanation = "<p class='text-emerald-400'>• دالة الجيب الزائدي (sinh) تغطي جميع الأعداد الحقيقية.</p>";
+            } else if (expr.includes('cosh')) {
+                rangeTex = "R_f = [1, +\\infty)";
+                explanation = "<p class='text-emerald-400'>• دالة جيب التمام الزائدي (cosh) قيمها تبدأ من 1 إلى ما لانهاية.</p>";
+            }
+
+            renderTex('range-output', rangeTex);
+            document.getElementById('range-explanation').innerHTML = explanation;
+        }
+
+        // Inverse Analysis
+        function analyzeInverse(expr, variable) {
+            let invTex = "";
+            let explanation = "";
+            const cleanExpr = expr.replace(/\s+/g, '');
+
+            if (cleanExpr === `${variable}^2`) {
+                invTex = `f^{-1}(${variable}) = \\sqrt{${variable}} \\quad (${variable} \\ge 0)`;
+                explanation = "<p class='text-purple-300'>• تم تقييد المجال لـ x ≥ 0 لضمان وجود الدالة العكسية.</p>";
+            } else if (cleanExpr === `${variable}^3`) {
+                invTex = `f^{-1}(${variable}) = \\sqrt[3]{${variable}}`;
+                explanation = "<p class='text-purple-300'>• الدالة التكعيبية أحادية ومطرّدة ولها دالة عكسية هي الجذر التكعيبي.</p>";
+            } else if (cleanExpr.includes('sin(')) {
+                invTex = `f^{-1}(${variable}) = \\arcsin(${variable})`;
+                explanation = "<p class='text-purple-300'>• معكوس دالة الجيب هو دالة الجيب العكسي arcsin(x).</p>";
+            } else if (cleanExpr.includes('cos(')) {
+                invTex = `f^{-1}(${variable}) = \\arccos(${variable})`;
+                explanation = "<p class='text-purple-300'>• معكوس دالة جيب التمام هو دالة جيب التمام العكسي arccos(x).</p>";
+            } else if (cleanExpr.includes('tan(')) {
+                invTex = `f^{-1}(${variable}) = \\arctan(${variable})`;
+                explanation = "<p class='text-purple-300'>• معكوس دالة الظل هو دالة الظل العكسي arctan(x).</p>";
+            } else if (cleanExpr.includes('sinh(')) {
+                invTex = `f^{-1}(${variable}) = \\operatorname{arcsinh}(${variable})`;
+                explanation = "<p class='text-purple-300'>• معكوس دالة الجيب الزائدي هو arcsinh(x).</p>";
+            } else if (cleanExpr === `e^${variable}` || cleanExpr === `exp(${variable})`) {
+                invTex = `f^{-1}(${variable}) = \\ln(${variable})`;
+                explanation = "<p class='text-purple-300'>• معكوس الدالة الأسية الطبيعية eˣ هو دالة اللوغاريتم الطبيعي ln(x).</p>";
+            } else if (cleanExpr === `ln(${variable})` || cleanExpr === `log(${variable})`) {
+                invTex = `f^{-1}(${variable}) = e^{${variable}}`;
+                explanation = "<p class='text-purple-300'>• معكوس دالة اللوغاريتم الطبيعي هو الدالة الأسية eˣ.</p>";
+            } else {
+                invTex = `f^{-1}(${variable}) : \\text{تحتاج تقييد المجال للدوال المركبة}`;
+                explanation = `<p class='text-amber-400'>• قد تتطلب الدالة تقييداً للمجال لتصبح أحادية (One-to-One) لضمان وجود المعكوس.</p>`;
+            }
+
+            renderTex('inverse-output', invTex);
+            document.getElementById('inverse-explanation').innerHTML = explanation;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            calculateAll();
+        });
+    </script>
+</body>
+</html>
